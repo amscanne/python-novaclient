@@ -217,6 +217,15 @@ class Server(base.Resource):
         """
         self.manager.create_image(self, image_name, metadata)
 
+    def create_live_image(self, live_image_name, metadata=None):
+        """
+        Create a live image from this server.
+
+        :param live_image_name: The name to assign the newly create image.
+        :param metadata: Metadata to assign to the image.
+        """
+        self.manager.create_live_image(self, live_image_name, metadata)
+
     def confirm_resize(self):
         """
         Confirm that the resize worked, thus removing the original server.
@@ -602,6 +611,19 @@ class ServerManager(local_base.BootingManagerWithFind):
         location = self._action('createImage', server, body)[0]['location']
         image_uuid = location.split('/')[-1]
         return image_uuid
+
+    def create_live_image(self, server, live_image_name, metadata=None):
+        """
+        Create a new live image from a server.
+
+        :param server: The :class:`Server` (or its ID) to share onto.
+        :param live_image_name: Name to give the new live image.
+        :param meta: Metadata to give newly-created image entity
+        """
+        body = {'name': live_image_name, 'metadata': metadata or {}}
+        location = self._action('os-createLiveImage', server, body)[0]['location']
+        live_image_uuid = location.split('/')[-1]
+        return live_image_uuid
 
     def set_meta(self, server, metadata):
         """
